@@ -1,95 +1,140 @@
 import streamlit as st
 import time
 
-# Configuración de la página
-st.set_page_config(page_title="Test de Salud y Bienestar", page_icon="🌱")
+# 1. CONFIGURACIÓN DE LA PÁGINA
+st.set_page_config(page_title="Test de Salud y Bienestar", page_icon="🌱", layout="centered")
 
-# Estilo visual mejorado
+# Estilos personalizados para que se vea limpio y profesional
 st.markdown("""
     <style>
-    .main { background-color: #f8f9fa; }
-    .stRadio > label { font-weight: bold; font-size: 18px; }
+    .stRadio > label {
+        font-size: 1.2rem !important;
+        font-weight: bold !important;
+        color: #2E4053;
+        padding-top: 10px;
+    }
+    .stAlert {
+        border-radius: 10px;
+    }
+    div[role="radiogroup"] {
+        background-color: #F8F9F9;
+        padding: 15px;
+        border-radius: 15px;
+        border: 1px solid #EAECEE;
+        margin-bottom: 20px;
+    }
     </style>
     """, unsafe_allow_html=True)
 
-st.title("🌱 ¿Cómo es tu relación con el alcohol?")
-st.write("Responde estas 10 preguntas rápidas para conocer tu nivel de riesgo. **Es totalmente anónimo.**")
+# 2. ENCABEZADO
+st.title("🛡️ Auto-Evaluación de Bienestar")
+st.write("Responde estas preguntas de forma **anónima**. Los resultados son solo para tu conocimiento personal.")
 
-# --- Explicación Sencilla de 'Un Trago' ---
-st.warning("⚠️ **Dato clave:** 1 Trago = 1 Cerveza pequeña = 1 Copa de vino = 1 Shot de tequila.")
+# Guía visual rápida
+st.info("💡 **Guía rápida:** 1 Trago = 1 Cerveza (330ml) = 1 Copa de vino = 1 Shot de licor.")
 
-with st.form("audit_facil"):
-    # Sección de Perfil
-    col1, col2 = st.columns(2)
-    with col1:
-        genero = st.radio("Soy:", ["Hombre", "Mujer"])
+# 3. INICIO DEL FORMULARIO
+with st.form("audit_form"):
     
-    st.divider()
-    st.subheader("📌 Hábitos Generales")
+    # Perfil básico para calcular el riesgo exacto
+    genero = st.radio("Primero, selecciona tu género:", ["Hombre", "Mujer"], horizontal=True)
+    
+    st.markdown("---")
+    st.header("📌 Parte 1: Hábitos Generales")
 
-    p1 = st.select_slider("1. ¿Qué tan seguido bebes?", 
-                         options=["Nunca", "Casi nunca", "2 a 4 veces al mes", "2 a 3 veces por semana", "Casi todos los días"])
-    
-    p2 = st.select_slider("2. En un día de fiesta, ¿cuántos tragos te tomas?", 
-                         options=["1 o 2", "3 o 4", "5 o 6", "7 a 9", "10 o más"])
-    
-    p3 = st.select_slider("3. ¿Qué tan seguido tomas más de 5 tragos en una sola vez?", 
-                         options=["Nunca", "Casi nunca", "Una vez al mes", "Cada semana", "A diario"])
-    
-    st.divider()
-    st.subheader("📌 Situaciones del último año")
-    
-    p4 = st.radio("4. ¿Sentiste que no podías parar de beber una vez que empezaste?", ["Nunca", "Casi nunca", "A veces", "Seguido", "Siempre"])
-    p5 = st.radio("5. ¿Faltaste al trabajo o estudio por haber bebido?", ["Nunca", "Casi nunca", "A veces", "Seguido", "Siempre"])
-    p6 = st.radio("6. ¿Necesitaste beber apenas te despertaste para 'curar' la resaca?", ["Nunca", "Casi nunca", "A veces", "Seguido", "Siempre"])
-    p7 = st.radio("7. ¿Sentiste culpa después de haber bebido?", ["Nunca", "Casi nunca", "A veces", "Seguido", "Siempre"])
-    p8 = st.radio("8. ¿Se te 'borró la cinta' (no recordabas nada) por beber?", ["Nunca", "Casi nunca", "A veces", "Seguido", "Siempre"])
-    
-    st.divider()
-    st.subheader("📌 Consecuencias")
-    p9 = st.radio("9. ¿Alguien salió herido (tú u otro) porque habías bebido?", ["No", "Sí, pero hace tiempo", "Sí, este último año"])
-    p10 = st.radio("10. ¿Algún amigo o médico te ha dicho que deberías bajarle al alcohol?", ["No", "Sí, pero hace tiempo", "Sí, este último año"])
+    # Pregunta 1
+    p1 = st.radio(
+        "1. ¿Con qué frecuencia bebes alcohol?",
+        ["Nunca", "1 vez al mes o menos", "2 a 4 veces al mes", "2 a 3 veces por semana", "4 o más veces por semana"]
+    )
 
-    enviar = st.form_submit_button("⭐ OBTENER MI RESULTADO")
+    # Pregunta 2
+    p2 = st.radio(
+        "2. En un día de consumo normal, ¿cuántos tragos te tomas?",
+        ["1 o 2", "3 o 4", "5 o 6", "7 a 9", "10 o más"]
+    )
 
-# Lógica de Puntos
-if enviar:
+    # Pregunta 3
+    p3 = st.radio(
+        "3. ¿Qué tan seguido tomas 5 o más tragos en una sola ocasión?",
+        ["Nunca", "Menos de una vez al mes", "Mensualmente", "Semanalmente", "A diario o casi a diario"]
+    )
+
+    st.markdown("---")
+    st.header("📌 Parte 2: En el último año...")
+
+    p4 = st.radio("4. ¿Sentiste que no podías parar de beber una vez que empezaste?", 
+                  ["Nunca", "Menos de una vez al mes", "Mensualmente", "Semanalmente", "A diario"])
+    
+    p5 = st.radio("5. ¿Faltaste a tus responsabilidades (trabajo/estudio) por beber?", 
+                  ["Nunca", "Menos de una vez al mes", "Mensualmente", "Semanalmente", "A diario"])
+    
+    p6 = st.radio("6. ¿Necesitaste beber en ayunas para recuperarte de una borrachera?", 
+                  ["Nunca", "Menos de una vez al mes", "Mensualmente", "Semanalmente", "A diario"])
+    
+    p7 = st.radio("7. ¿Sentiste remordimiento o culpa después de beber?", 
+                  ["Nunca", "Menos de una vez al mes", "Mensualmente", "Semanalmente", "A diario"])
+    
+    p8 = st.radio("8. ¿Has tenido lagunas mentales (no recordar nada) por la bebida?", 
+                  ["Nunca", "Menos de una vez al mes", "Mensualmente", "Semanalmente", "A diario"])
+
+    st.markdown("---")
+    st.header("📌 Parte 3: Consecuencias")
+
+    p9 = st.radio("9. ¿Tú o alguien más resultó herido porque habías bebido?", 
+                  ["No", "Sí, pero no en el último año", "Sí, durante el último año"])
+    
+    p10 = st.radio("10. ¿Algún familiar o médico se ha preocupado por tu forma de beber?", 
+                   ["No", "Sí, pero no en el último año", "Sí, durante el último año"])
+
+    # BOTÓN DE ENVÍO
+    boton_resultado = st.form_submit_button("🚀 VER MI RESULTADO FINAL")
+
+# 4. LÓGICA DE RESULTADOS
+if boton_resultado:
+    # Mapeo de puntos (Índices 0-4)
     puntos = 0
-    # Mapeo simple de 0 a 4
-    lista_comun = ["Nunca", "Casi nunca", "2 a 4 veces al mes", "2 a 3 veces por semana", "Casi todos los días", 
-                   "1 o 2", "3 o 4", "5 o 6", "7 a 9", "10 o más",
-                   "Una vez al mes", "Cada semana", "A diario", "A diario o casi diario",
-                   "A veces", "Seguido", "Siempre"]
     
-    # (El cálculo de puntos sigue la misma lógica oficial interna)
-    puntos += ["Nunca", "Casi nunca", "2 a 4 veces al mes", "2 a 3 veces por semana", "Casi todos los días"].index(p1)
+    # P1 a P8 (Suman según el orden de la lista 0,1,2,3,4)
+    opciones_std = ["Nunca", "1 vez al mes o menos", "2 a 4 veces al mes", "2 a 3 veces por semana", "4 o más veces por semana",
+                    "1 o 2", "3 o 4", "5 o 6", "7 a 9", "10 o más",
+                    "Menos de una vez al mes", "Mensualmente", "Semanalmente", "A diario", "A diario o casi a diario"]
+    
+    puntos += ["Nunca", "1 vez al mes o menos", "2 a 4 veces al mes", "2 a 3 veces por semana", "4 o más veces por semana"].index(p1)
     puntos += ["1 o 2", "3 o 4", "5 o 6", "7 a 9", "10 o más"].index(p2)
-    puntos += ["Nunca", "Casi nunca", "Una vez al mes", "Cada semana", "A diario"].index(p3)
-    for r in [p4, p5, p6, p7, p8]:
-        puntos += ["Nunca", "Casi nunca", "A veces", "Seguido", "Siempre"].index(r)
+    puntos += ["Nunca", "Menos de una vez al mes", "Mensualmente", "Semanalmente", "A diario o casi a diario"].index(p3)
     
-    map_especial = {"No": 0, "Sí, pero hace tiempo": 2, "Sí, este último año": 4}
+    # Preguntas 4 a 8
+    for r in [p4, p5, p6, p7, p8]:
+        puntos += ["Nunca", "Menos de una vez al mes", "Mensualmente", "Semanalmente", "A diario"].index(r)
+    
+    # Preguntas 9 y 10 (Suman 0, 2 o 4)
+    map_especial = {"No": 0, "Sí, pero no en el último año": 2, "Sí, durante el último año": 4}
     puntos += map_especial[p9]
     puntos += map_especial[p10]
 
-    with st.spinner('Calculando...'):
-        time.sleep(1)
+    # Efecto de carga
+    with st.spinner('Analizando tus respuestas...'):
+        time.sleep(1.2)
 
-    # Resultados entendibles
-    st.markdown("---")
-    st.header(f"Tu resultado: {puntos} puntos")
+    # Mostrar puntaje
+    st.divider()
+    st.markdown(f"<h2 style='text-align: center;'>Puntaje Total: {puntos}</h2>", unsafe_allow_html=True)
 
-    # Ajuste de rangos
+    # Interpretación oficial basada en la tabla de la OMS
     r_bajo = 4 if genero == "Hombre" else 3
-    r_medio = 14 if genero == "Hombre" else 12
+    r_riesgo = 14 if genero == "Hombre" else 12
+    r_perjudicial = 19 if genero == "Hombre" else 18
 
     if puntos <= r_bajo:
         st.balloons()
-        st.success("✅ **¡Todo bien!** Tu consumo es de bajo riesgo. Sigue disfrutando con moderación.")
-    elif puntos <= r_medio:
-        st.warning("⚠️ **¡Cuidado!** Estás en un nivel de riesgo. Podrías empezar a tener problemas de salud pronto. Sería bueno bajarle un poco.")
+        st.success("✅ **NIVEL I: RIESGO BAJO**\n\nTu consumo se mantiene en niveles saludables. ¡Sigue cuidándote!")
+    elif puntos <= r_riesgo:
+        st.warning("⚠️ **NIVEL II: CONSUMO DE RIESGO**\n\nEstás en un nivel donde el alcohol podría empezar a afectar tu salud. Se recomienda reducir la cantidad o frecuencia.")
+    elif puntos <= r_perjudicial:
+        st.error("🚨 **NIVEL III: CONSUMO PERJUDICIAL**\n\nTu patrón de consumo ya está causando daños. Sería muy valioso buscar orientación profesional o hablar con un experto en salud.")
     else:
         st.snow()
-        st.error("🚨 **¡Alerta!** Tu nivel de consumo es muy alto y puede ser peligroso. Te recomendamos buscar ayuda profesional o hablar con alguien de confianza.")
+        st.error("🆘 **NIVEL IV: POSIBLE DEPENDENCIA**\n\nLos resultados sugieren una posible dependencia. Te animamos a buscar apoyo especializado lo antes posible para mejorar tu calidad de vida.")
 
-    st.info("ℹ️ *Recuerda: Este test es una guía educativa, no un diagnóstico médico.*")
+    st.info("🔍 *Nota: Este test es una herramienta de orientación educativa, no reemplaza una consulta médica profesional.*")
