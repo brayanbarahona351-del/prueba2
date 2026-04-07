@@ -1,106 +1,95 @@
 import streamlit as st
 import time
 
-# 1. Configuración visual de la pestaña
-st.set_page_config(page_title="Test AUDIT - Concientización", page_icon="🍷", layout="centered")
+# Configuración de la página
+st.set_page_config(page_title="Test de Salud y Bienestar", page_icon="🌱")
 
-# 2. Título y Introducción
-st.title("📊 Auto-Evaluación: Hábitos de Consumo")
+# Estilo visual mejorado
 st.markdown("""
-Esta herramienta es **anónima y privada**. Utilízala para reflexionar sobre tu salud.
-*Responde basándote en tu consumo del último año.*
-""")
+    <style>
+    .main { background-color: #f8f9fa; }
+    .stRadio > label { font-weight: bold; font-size: 18px; }
+    </style>
+    """, unsafe_allow_html=True)
 
-# 3. Definición de equivalencias (Importante para que el usuario no se confunda)
-with st.expander("❓ ¿Qué se considera 'un trago'?", expanded=False):
-    st.info("""
-    **Un trago estándar equivale a:**
-    - 🍺 Una cerveza (330ml / 12oz)
-    - 🍷 Una copa de vino (150ml / 5oz)
-    - 🥃 Un trago corto de licor (40ml / 1.5oz)
-    """)
+st.title("🌱 ¿Cómo es tu relación con el alcohol?")
+st.write("Responde estas 10 preguntas rápidas para conocer tu nivel de riesgo. **Es totalmente anónimo.**")
 
-# 4. Inicio del Formulario
-with st.form("test_audit"):
+# --- Explicación Sencilla de 'Un Trago' ---
+st.warning("⚠️ **Dato clave:** 1 Trago = 1 Cerveza pequeña = 1 Copa de vino = 1 Shot de tequila.")
+
+with st.form("audit_facil"):
+    # Sección de Perfil
     col1, col2 = st.columns(2)
     with col1:
-        genero = st.radio("Selecciona tu género:", ["Hombre", "Mujer"])
-    with col2:
-        st.caption("Nota: El género ajusta los rangos de riesgo según el manual OMS.")
-
-    st.divider()
-
-    # Preguntas 1 a 8 (Escala 0 a 4 puntos)
-    # Usamos select_slider para que sea más interactivo que un simple botón
-    p1 = st.select_slider("1. ¿Con qué frecuencia bebes alcohol?", 
-                         options=["Nunca", "1 o menos al mes", "2 a 4 al mes", "2 a 3 por semana", "4 o más por semana"])
+        genero = st.radio("Soy:", ["Hombre", "Mujer"])
     
-    p2 = st.select_slider("2. ¿Cuántos tragos consumes en un día típico?", 
+    st.divider()
+    st.subheader("📌 Hábitos Generales")
+
+    p1 = st.select_slider("1. ¿Qué tan seguido bebes?", 
+                         options=["Nunca", "Casi nunca", "2 a 4 veces al mes", "2 a 3 veces por semana", "Casi todos los días"])
+    
+    p2 = st.select_slider("2. En un día de fiesta, ¿cuántos tragos te tomas?", 
                          options=["1 o 2", "3 o 4", "5 o 6", "7 a 9", "10 o más"])
     
-    p3 = st.select_slider("3. ¿Con qué frecuencia bebes 5 o más tragos en una sola ocasión?", 
-                         options=["Nunca", "Menos de una vez al mes", "Mensualmente", "Semanalmente", "A diario o casi diario"])
+    p3 = st.select_slider("3. ¿Qué tan seguido tomas más de 5 tragos en una sola vez?", 
+                         options=["Nunca", "Casi nunca", "Una vez al mes", "Cada semana", "A diario"])
     
-    st.subheader("En el último año...")
-    
-    p4 = st.radio("4. ¿Sentiste que no podías parar de beber una vez empezado?", ["Nunca", "Menos de una vez al mes", "Mensualmente", "Semanalmente", "A diario"])
-    p5 = st.radio("5. ¿Dejaste de hacer tus tareas normales por la bebida?", ["Nunca", "Menos de una vez al mes", "Mensualmente", "Semanalmente", "A diario"])
-    p6 = st.radio("6. ¿Necesitaste beber en ayunas tras una noche de consumo?", ["Nunca", "Menos de una vez al mes", "Mensualmente", "Semanalmente", "A diario"])
-    p7 = st.radio("7. ¿Sentiste culpa o remordimiento después de beber?", ["Nunca", "Menos de una vez al mes", "Mensualmente", "Semanalmente", "A diario"])
-    p8 = st.radio("8. ¿Has tenido lagunas mentales (no recordar nada)?", ["Nunca", "Menos de una vez al mes", "Mensualmente", "Semanalmente", "A diario"])
-    
-    # Preguntas 9 y 10 (Escala especial: 0, 2, 4 puntos)
     st.divider()
-    p9 = st.radio("9. ¿Tú o alguien más resultó herido por tu forma de beber?", ["No", "Sí, pero no este año", "Sí, durante este año"])
-    p10 = st.radio("10. ¿Algún familiar o médico te ha sugerido dejar de beber?", ["No", "Sí, pero no este año", "Sí, durante este año"])
-
-    # Botón de envío
-    enviar = st.form_submit_button("VER MI RESULTADO")
-
-# 5. Lógica de Puntuación y Resultados
-if enviar:
-    # Calculamos puntos de P1 a P8 (el índice de la opción elegida es el puntaje)
-    puntos = 0
-    puntos += ["Nunca", "1 o menos al mes", "2 a 4 al mes", "2 a 3 por semana", "4 o más por semana"].index(p1)
-    puntos += ["1 o 2", "3 o 4", "5 o 6", "7 a 9", "10 o más"].index(p2)
-    puntos += ["Nunca", "Menos de una vez al mes", "Mensualmente", "Semanalmente", "A diario o casi diario"].index(p3)
+    st.subheader("📌 Situaciones del último año")
     
-    for r in [p4, p5, p6, p7, p8]:
-        puntos += ["Nunca", "Menos de una vez al mes", "Mensualmente", "Semanalmente", "A diario"].index(r)
+    p4 = st.radio("4. ¿Sentiste que no podías parar de beber una vez que empezaste?", ["Nunca", "Casi nunca", "A veces", "Seguido", "Siempre"])
+    p5 = st.radio("5. ¿Faltaste al trabajo o estudio por haber bebido?", ["Nunca", "Casi nunca", "A veces", "Seguido", "Siempre"])
+    p6 = st.radio("6. ¿Necesitaste beber apenas te despertaste para 'curar' la resaca?", ["Nunca", "Casi nunca", "A veces", "Seguido", "Siempre"])
+    p7 = st.radio("7. ¿Sentiste culpa después de haber bebido?", ["Nunca", "Casi nunca", "A veces", "Seguido", "Siempre"])
+    p8 = st.radio("8. ¿Se te 'borró la cinta' (no recordabas nada) por beber?", ["Nunca", "Casi nunca", "A veces", "Seguido", "Siempre"])
+    
+    st.divider()
+    st.subheader("📌 Consecuencias")
+    p9 = st.radio("9. ¿Alguien salió herido (tú u otro) porque habías bebido?", ["No", "Sí, pero hace tiempo", "Sí, este último año"])
+    p10 = st.radio("10. ¿Algún amigo o médico te ha dicho que deberías bajarle al alcohol?", ["No", "Sí, pero hace tiempo", "Sí, este último año"])
 
-    # Puntos de P9 y P10 (0, 2 o 4 según manual)
-    map_especial = {"No": 0, "Sí, pero no este año": 2, "Sí, durante este año": 4}
+    enviar = st.form_submit_button("⭐ OBTENER MI RESULTADO")
+
+# Lógica de Puntos
+if enviar:
+    puntos = 0
+    # Mapeo simple de 0 a 4
+    lista_comun = ["Nunca", "Casi nunca", "2 a 4 veces al mes", "2 a 3 veces por semana", "Casi todos los días", 
+                   "1 o 2", "3 o 4", "5 o 6", "7 a 9", "10 o más",
+                   "Una vez al mes", "Cada semana", "A diario", "A diario o casi diario",
+                   "A veces", "Seguido", "Siempre"]
+    
+    # (El cálculo de puntos sigue la misma lógica oficial interna)
+    puntos += ["Nunca", "Casi nunca", "2 a 4 veces al mes", "2 a 3 veces por semana", "Casi todos los días"].index(p1)
+    puntos += ["1 o 2", "3 o 4", "5 o 6", "7 a 9", "10 o más"].index(p2)
+    puntos += ["Nunca", "Casi nunca", "Una vez al mes", "Cada semana", "A diario"].index(p3)
+    for r in [p4, p5, p6, p7, p8]:
+        puntos += ["Nunca", "Casi nunca", "A veces", "Seguido", "Siempre"].index(r)
+    
+    map_especial = {"No": 0, "Sí, pero hace tiempo": 2, "Sí, este último año": 4}
     puntos += map_especial[p9]
     puntos += map_especial[p10]
 
-    # Animación de carga
-    with st.spinner('Procesando datos...'):
+    with st.spinner('Calculando...'):
         time.sleep(1)
 
-    st.subheader(f"Tu puntaje final es: {puntos}")
+    # Resultados entendibles
+    st.markdown("---")
+    st.header(f"Tu resultado: {puntos} puntos")
 
-    # --- Interpretación Dinámica ---
-    # Rangos según género (Imagen de referencia)
-    limite_bajo = 4 if genero == "Hombre" else 3
-    limite_riesgo = 14 if genero == "Hombre" else 12
-    limite_perjudicial = 19 if genero == "Hombre" else 18
+    # Ajuste de rangos
+    r_bajo = 4 if genero == "Hombre" else 3
+    r_medio = 14 if genero == "Hombre" else 12
 
-    if puntos <= limite_bajo:
-        st.balloons() # Animación de globos
-        st.success("### Nivel I: Riesgo Bajo")
-        st.write("Tu consumo está dentro de los límites saludables. ¡Sigue así!")
-        
-    elif puntos <= limite_riesgo:
-        st.warning("### Nivel II: Consumo de Riesgo")
-        st.write("Atención: Estás consumiendo en niveles que podrían afectar tu salud a largo plazo. Se recomienda moderación.")
-        
-    elif puntos <= limite_perjudicial:
-        st.error("### Nivel III: Consumo Perjudicial")
-        st.write("Tu patrón de consumo ya muestra signos de daño físico o mental. Considera hablar con un profesional.")
-        
+    if puntos <= r_bajo:
+        st.balloons()
+        st.success("✅ **¡Todo bien!** Tu consumo es de bajo riesgo. Sigue disfrutando con moderación.")
+    elif puntos <= r_medio:
+        st.warning("⚠️ **¡Cuidado!** Estás en un nivel de riesgo. Podrías empezar a tener problemas de salud pronto. Sería bueno bajarle un poco.")
     else:
-        st.snow() # Animación de nieve (efecto visual de alerta)
-        st.markdown("## 🚨 Nivel IV: Posible Dependencia")
-        st.write("Es muy probable que necesites ayuda especializada. No ignores estas señales.")
-    
-    st.info("💡 **Consejo:** Esta herramienta es informativa. Si tienes dudas, consulta a un médico.")
+        st.snow()
+        st.error("🚨 **¡Alerta!** Tu nivel de consumo es muy alto y puede ser peligroso. Te recomendamos buscar ayuda profesional o hablar con alguien de confianza.")
+
+    st.info("ℹ️ *Recuerda: Este test es una guía educativa, no un diagnóstico médico.*")
