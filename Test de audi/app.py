@@ -1,93 +1,116 @@
 import streamlit as st
 import time
-import base64
 
-# 1. FUNCIÓN PARA PONER IMAGEN DE FONDO CON TRANSPARENCIA
-def add_bg_from_local(image_file):
-    with open(image_file, "rb") as image_file:
-        encoded_string = base64.b64encode(image_file.read())
-    st.markdown(
-    f"""
+# 1. FORZAR MODO CLARO Y ALTO CONTRASTE PARA LECTURA FÁCIL
+st.set_page_config(page_title="Test AUDIT Completo", page_icon="🌱", layout="centered")
+
+st.markdown("""
     <style>
-    .stApp {{
-        background-image: url("data:image/png;base64,{encoded_string.decode()}");
-        background-attachment: fixed;
-        background-size: 60%; /* Tamaño del logo */
-        background-repeat: no-repeat;
-        background-position: center;
-        background-color: rgba(255, 255, 255, 0.85); /* Capa blanca para transparencia */
-        background-blend-mode: overlay;
-    }}
+    /* Forzar fondo blanco y texto negro */
+    .stApp { background-color: white !important; }
+    h1, h2, h3, p, span, label, div { color: #1a1a1a !important; }
     
-    /* Forzar texto negro para que resalte sobre el fondo */
-    h1, h2, h3, p, span, label, div {{ 
-        color: #000000 !important; 
-        font-weight: 500;
-    }}
-
-    .pregunta-titulo {{
-        background-color: rgba(240, 242, 246, 0.9); /* Fondo semi-transparente para la pregunta */
+    /* Diseño de las preguntas (Grandes y Legibles) */
+    .pregunta-titulo {
+        font-size: 20px;
+        font-weight: bold;
+        background-color: #f0f2f6;
         padding: 12px;
         border-radius: 10px;
         margin-top: 20px;
-        font-weight: bold;
-    }}
+    }
+    /* Espaciado para las opciones */
+    div[role="radiogroup"] {
+        padding: 10px 20px;
+        margin-bottom: 10px;
+    }
     </style>
-    """,
-    unsafe_allow_html=True
-    )
+    """, unsafe_allow_html=True)
 
-# 2. CONFIGURACIÓN E INYECCIÓN DE FONDO
-st.set_page_config(page_title="Test AUDIT - D.S.P. Honduras", page_icon="🛡️")
+# 2. ENCABEZADO
+st.title("🛡️ Auto-Evaluación de Bienestar")
+st.write("Responde las 10 preguntas con sinceridad. Tus respuestas son **100% privadas**.")
 
-# --- ¡IMPORTANTE! --- 
-# Asegúrate de que tu imagen se llame 'logo.png' o cambia el nombre aquí abajo
-try:
-    add_bg_from_local('logo.png') 
-except FileNotFoundError:
-    st.error("⚠️ No se encontró el archivo 'logo.png'. Por favor, súbelo a la carpeta del proyecto.")
+st.info("💡 **Recuerda:** 1 Trago = 1 Cerveza pequeña = 1 Copa de vino = 1 Shot de licor.")
 
-# 3. CONTENIDO DEL TEST (10 PREGUNTAS)
-st.title("🛡️ Dirección de Sanidad Policial")
-st.subheader("Auto-Evaluación de Bienestar (AUDIT)")
-st.write("Herramienta de concientización sobre el consumo de alcohol.")
-
-with st.form("audit_dsp"):
+# 3. FORMULARIO COMPLETO (10 PREGUNTAS)
+with st.form("audit_completo"):
+    
     st.markdown("<div class='pregunta-titulo'>Selecciona tu género:</div>", unsafe_allow_html=True)
-    genero = st.radio("", ["Hombre", "Mujer"], horizontal=True, label_visibility="collapsed")
+    genero = st.radio("Dato necesario para el rango médico:", ["Hombre", "Mujer"], horizontal=True, label_visibility="collapsed")
+    
+    st.divider()
 
-    # Preguntas 1-3
-    st.markdown("<div class='pregunta-titulo'>1. ¿Con qué frecuencia bebe alcohol?</div>", unsafe_allow_html=True)
-    p1 = st.radio("q1", ["Nunca", "1 vez al mes o menos", "2 a 4 al mes", "2 a 3 por semana", "4 o más por semana"], label_visibility="collapsed")
+    # --- BLOQUE 1: FRECUENCIA ---
+    st.markdown("<div class='pregunta-titulo'>1. ¿Con qué frecuencia bebes alcohol?</div>", unsafe_allow_html=True)
+    p1 = st.radio("P1", ["Nunca", "1 vez al mes o menos", "2 a 4 veces al mes", "2 a 3 veces por semana", "4 o más veces por semana"], label_visibility="collapsed")
 
-    st.markdown("<div class='pregunta-titulo'>2. En un día normal, ¿cuántos tragos toma?</div>", unsafe_allow_html=True)
-    p2 = st.radio("q2", ["1 o 2", "3 o 4", "5 o 6", "7 a 9", "10 o más"], label_visibility="collapsed")
+    st.markdown("<div class='pregunta-titulo'>2. En un día de consumo normal, ¿cuántos tragos tomas?</div>", unsafe_allow_html=True)
+    p2 = st.radio("P2", ["1 o 2", "3 o 4", "5 o 6", "7 a 9", "10 o más"], label_visibility="collapsed")
 
-    st.markdown("<div class='pregunta-titulo'>3. ¿Con qué frecuencia bebe 5 o más tragos en una vez?</div>", unsafe_allow_html=True)
-    p3 = st.radio("q3", ["Nunca", "Menos de una vez al mes", "Mensualmente", "Semanalmente", "A diario"], label_visibility="collapsed")
+    st.markdown("<div class='pregunta-titulo'>3. ¿Qué tan seguido tomas 5 o más tragos en una sola vez?</div>", unsafe_allow_html=True)
+    p3 = st.radio("P3", ["Nunca", "Menos de una vez al mes", "Mensualmente", "Semanalmente", "A diario"], label_visibility="collapsed")
 
-    # Preguntas 4-8 (Simplificadas para el ejemplo, mantén la lógica de puntos anterior)
-    st.markdown("### Situaciones del último año")
-    preguntas_restantes = [
-        "4. ¿No pudo parar de beber una vez empezado?",
-        "5. ¿Incumplió responsabilidades por beber?",
-        "6. ¿Necesitó beber en ayunas tras una borrachera?",
-        "7. ¿Sintió remordimiento o culpa?",
-        "8. ¿No recordó lo sucedido por beber?"
-    ]
-    respuestas = []
-    for i, texto in enumerate(preguntas_restantes):
-        st.markdown(f"<div class='pregunta-titulo'>{texto}</div>", unsafe_allow_html=True)
-        respuestas.append(st.radio(f"q{i+4}", ["Nunca", "Menos de una vez al mes", "Mensualmente", "Semanalmente", "A diario"], label_visibility="collapsed"))
+    # --- BLOQUE 2: COMPORTAMIENTO (Último año) ---
+    st.markdown("### En el último año...")
 
-    # Preguntas 9-10
-    st.markdown("<div class='pregunta-titulo'>9. ¿Alguien resultó herido por su consumo?</div>", unsafe_allow_html=True)
-    p9 = st.radio("q9", ["No", "Sí, pero no este año", "Sí, este año"], label_visibility="collapsed")
+    st.markdown("<div class='pregunta-titulo'>4. ¿Sentiste que no podías parar de beber una vez empezado?</div>", unsafe_allow_html=True)
+    p4 = st.radio("P4", ["Nunca", "Menos de una vez al mes", "Mensualmente", "Semanalmente", "A diario"], label_visibility="collapsed")
 
-    st.markdown("<div class='pregunta-titulo'>10. ¿Alguien se ha preocupado por su forma de beber?</div>", unsafe_allow_html=True)
-    p10 = st.radio("q10", ["No", "Sí, pero no este año", "Sí, este año"], label_visibility="collapsed")
+    st.markdown("<div class='pregunta-titulo'>5. ¿Faltaste a tus tareas normales por haber bebido?</div>", unsafe_allow_html=True)
+    p5 = st.radio("P5", ["Nunca", "Menos de una vez al mes", "Mensualmente", "Semanalmente", "A diario"], label_visibility="collapsed")
 
-    if st.form_submit_button("🚀 OBTENER RESULTADO"):
-        # (Aquí va la lógica de suma de puntos que ya tienes)
+    st.markdown("<div class='pregunta-titulo'>6. ¿Necesitaste beber en ayunas tras una borrachera?</div>", unsafe_allow_html=True)
+    p6 = st.radio("P6", ["Nunca", "Menos de una vez al mes", "Mensualmente", "Semanalmente", "A diario"], label_visibility="collapsed")
+
+    st.markdown("<div class='pregunta-titulo'>7. ¿Sentiste culpa o remordimiento después de beber?</div>", unsafe_allow_html=True)
+    p7 = st.radio("P7", ["Nunca", "Menos de una vez al mes", "Mensualmente", "Semanalmente", "A diario"], label_visibility="collapsed")
+
+    st.markdown("<div class='pregunta-titulo'>8. ¿Has tenido lagunas mentales (no recordar nada)?</div>", unsafe_allow_html=True)
+    p8 = st.radio("P8", ["Nunca", "Menos de una vez al mes", "Mensualmente", "Semanalmente", "A diario"], label_visibility="collapsed")
+
+    # --- BLOQUE 3: CONSECUENCIAS ---
+    st.markdown("<div class='pregunta-titulo'>9. ¿Tú o alguien más resultó herido por tu consumo?</div>", unsafe_allow_html=True)
+    p9 = st.radio("P9", ["No", "Sí, pero no en el último año", "Sí, durante el último año"], label_visibility="collapsed")
+
+    st.markdown("<div class='pregunta-titulo'>10. ¿Alguien se ha preocupado por tu forma de beber?</div>", unsafe_allow_html=True)
+    p10 = st.radio("P10", ["No", "Sí, pero no en el último año", "Sí, durante el último año"], label_visibility="collapsed")
+
+    st.divider()
+    boton = st.form_submit_button("🚀 CALCULAR MI NIVEL DE RIESGO")
+
+# 4. LÓGICA DE PUNTUACIÓN
+if boton:
+    score = 0
+    # Preguntas 1 a 8 (0 a 4 puntos)
+    score += ["Nunca", "1 vez al mes o menos", "2 a 4 veces al mes", "2 a 3 veces por semana", "4 o más veces por semana"].index(p1)
+    score += ["1 o 2", "3 o 4", "5 o 6", "7 a 9", "10 o más"].index(p2)
+    score += ["Nunca", "Menos de una vez al mes", "Mensualmente", "Semanalmente", "A diario"].index(p3)
+    for r in [p4, p5, p6, p7, p8]:
+        score += ["Nunca", "Menos de una vez al mes", "Mensualmente", "Semanalmente", "A diario"].index(r)
+    
+    # Preguntas 9 y 10 (0, 2 o 4 puntos)
+    map_9_10 = {"No": 0, "Sí, pero no en el último año": 2, "Sí, durante el último año": 4}
+    score += map_9_10[p9]
+    score += map_9_10[p10]
+
+    with st.spinner('Analizando...'):
+        time.sleep(1)
+
+    st.markdown(f"<h2 style='text-align: center;'>Puntaje Total: {score}</h2>", unsafe_allow_html=True)
+
+    # Rangos según género
+    r1, r2, r3 = (4, 14, 19) if genero == "Hombre" else (3, 12, 18)
+
+    if score <= r1:
         st.balloons()
-        st.success("Test finalizado con éxito.")
+        st.success("✅ **Nivel I: Riesgo Bajo**. Tu consumo es saludable.")
+    elif score <= r2:
+        st.warning("⚠️ **Nivel II: Riesgo Medio**. Considera reducir tu consumo.")
+    elif score <= r3:
+        st.error("🚨 **Nivel III: Consumo Perjudicial**. Tu salud podría estar en riesgo.")
+    else:
+        st.snow()
+        st.error("🆘 **Nivel IV: Posible Dependencia**. Se recomienda buscar ayuda profesional.")
+
+    st.info("Nota: Este test es educativo. Si necesitas ayuda profesional, acude a tu centro de salud.")
